@@ -1,4 +1,4 @@
-2026-07-08 11:34:00,197 - Namespace(data_dir='./data/', output_dir='output/', data_name='Sports_and_Outdoors', do_eval=False, load_model=None, train_name='BSARec_iPCMv3_SFNS_Sports_final', num_items=10, num_users=35599, lr=0.001, batch_size=256, epochs=200, no_cuda=False, log_freq=1, patience=10, num_workers=4, seed=42, weight_decay=0.0, adam_beta1=0.9, adam_beta2=0.999, gpu_id='0', variance=5, model_type='BSARec', max_seq_length=50, hidden_size=64, num_hidden_layers=2, hidden_act='gelu', num_attention_heads=4, attention_probs_dropout_prob=0.5, hidden_dropout_prob=0.5, initializer_range=0.02, c=3, alpha=0.7, ipcm=True, ipcm_lambda=0.001, ipcm_tau=0.2, ipcm_window_size=20, ipcm_neg_mode='sfns', ipcm_sfns_candidates=10, ipcm_sfns_rho=0.95, ipcm_no_gate=False, ipcm_high_freq_only=False, ipcm_gate=True, cuda_condition=True, data_file='./data/Sports_and_Outdoors.txt', item_size=18358, checkpoint_path='output/BSARec_iPCMv3_SFNS_Sports_final.pt', same_target_path='./data/Sports_and_Outdoors_same_target.npy')
+﻿2026-07-08 11:34:00,197 - Namespace(data_dir='./data/', output_dir='output/', data_name='Sports_and_Outdoors', do_eval=False, load_model=None, train_name='BSARec_FCM_SHN_Sports_final', num_items=10, num_users=35599, lr=0.001, batch_size=256, epochs=200, no_cuda=False, log_freq=1, patience=10, num_workers=4, seed=42, weight_decay=0.0, adam_beta1=0.9, adam_beta2=0.999, gpu_id='0', variance=5, model_type='BSARec', max_seq_length=50, hidden_size=64, num_hidden_layers=2, hidden_act='gelu', num_attention_heads=4, attention_probs_dropout_prob=0.5, hidden_dropout_prob=0.5, initializer_range=0.02, c=3, alpha=0.7, fcm=True, fcm_lambda=0.001, fcm_tau=0.2, fcm_window_size=20, fcm_neg_mode='shn', shn_candidates=10, shn_rho=0.95, fcm_no_gate=False, fcm_high_freq_only=False, fcm_gate=True, cuda_condition=True, data_file='./data/Sports_and_Outdoors.txt', item_size=18358, checkpoint_path='output/BSARec_FCM_SHN_Sports_final.pt', same_target_path='./data/Sports_and_Outdoors_same_target.npy')
 2026-07-08 11:34:00,221 - BSARecModel(
   (item_embeddings): Embedding(18358, 64, padding_idx=0)
   (position_embeddings): Embedding(50, 64)
@@ -229,5 +229,6 @@
 2026-07-08 12:10:42,998 - Early stopping
 2026-07-08 12:10:42,998 - ---------------Test Score---------------
 2026-07-08 12:10:53,671 - {'Epoch': 0, 'HR@5': '0.0421', 'NDCG@5': '0.0292', 'HR@10': '0.0614', 'NDCG@10': '0.0354', 'HR@20': '0.0854', 'NDCG@20': '0.0414'}
-2026-07-08 12:10:53,673 - BSARec_iPCMv3_SFNS_Sports_final
+2026-07-08 12:10:53,673 - BSARec_FCM_SHN_Sports_final
 2026-07-08 12:10:53,673 - {'Epoch': 0, 'HR@5': '0.0421', 'NDCG@5': '0.0292', 'HR@10': '0.0614', 'NDCG@10': '0.0354', 'HR@20': '0.0854', 'NDCG@20': '0.0414'}
+

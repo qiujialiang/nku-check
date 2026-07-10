@@ -1,4 +1,4 @@
-2026-07-08 11:33:59,534 - Namespace(data_dir='./data/', output_dir='output/', data_name='Toys_and_Games', do_eval=False, load_model=None, train_name='BSARec_iPCMv3_SFNS_Toys_final', num_items=10, num_users=19413, lr=0.001, batch_size=256, epochs=200, no_cuda=False, log_freq=1, patience=10, num_workers=4, seed=42, weight_decay=0.0, adam_beta1=0.9, adam_beta2=0.999, gpu_id='0', variance=5, model_type='BSARec', max_seq_length=50, hidden_size=64, num_hidden_layers=2, hidden_act='gelu', num_attention_heads=1, attention_probs_dropout_prob=0.5, hidden_dropout_prob=0.5, initializer_range=0.02, c=7, alpha=0.3, ipcm=True, ipcm_lambda=0.003, ipcm_tau=0.2, ipcm_window_size=20, ipcm_neg_mode='sfns', ipcm_sfns_candidates=5, ipcm_sfns_rho=0.95, ipcm_no_gate=False, ipcm_high_freq_only=False, ipcm_gate=True, cuda_condition=True, data_file='./data/Toys_and_Games.txt', item_size=11925, checkpoint_path='output/BSARec_iPCMv3_SFNS_Toys_final.pt', same_target_path='./data/Toys_and_Games_same_target.npy')
+﻿2026-07-08 11:33:59,534 - Namespace(data_dir='./data/', output_dir='output/', data_name='Toys_and_Games', do_eval=False, load_model=None, train_name='BSARec_FCM_SHN_Toys_final', num_items=10, num_users=19413, lr=0.001, batch_size=256, epochs=200, no_cuda=False, log_freq=1, patience=10, num_workers=4, seed=42, weight_decay=0.0, adam_beta1=0.9, adam_beta2=0.999, gpu_id='0', variance=5, model_type='BSARec', max_seq_length=50, hidden_size=64, num_hidden_layers=2, hidden_act='gelu', num_attention_heads=1, attention_probs_dropout_prob=0.5, hidden_dropout_prob=0.5, initializer_range=0.02, c=7, alpha=0.3, fcm=True, fcm_lambda=0.003, fcm_tau=0.2, fcm_window_size=20, fcm_neg_mode='shn', shn_candidates=5, shn_rho=0.95, fcm_no_gate=False, fcm_high_freq_only=False, fcm_gate=True, cuda_condition=True, data_file='./data/Toys_and_Games.txt', item_size=11925, checkpoint_path='output/BSARec_FCM_SHN_Toys_final.pt', same_target_path='./data/Toys_and_Games_same_target.npy')
 2026-07-08 11:33:59,552 - BSARecModel(
   (item_embeddings): Embedding(11925, 64, padding_idx=0)
   (position_embeddings): Embedding(50, 64)
@@ -208,5 +208,6 @@
 2026-07-08 11:53:50,502 - Early stopping
 2026-07-08 11:53:50,502 - ---------------Test Score---------------
 2026-07-08 11:53:54,708 - {'Epoch': 0, 'HR@5': '0.0814', 'NDCG@5': '0.0590', 'HR@10': '0.1091', 'NDCG@10': '0.0679', 'HR@20': '0.1444', 'NDCG@20': '0.0768'}
-2026-07-08 11:53:54,709 - BSARec_iPCMv3_SFNS_Toys_final
+2026-07-08 11:53:54,709 - BSARec_FCM_SHN_Toys_final
 2026-07-08 11:53:54,710 - {'Epoch': 0, 'HR@5': '0.0814', 'NDCG@5': '0.0590', 'HR@10': '0.1091', 'NDCG@10': '0.0679', 'HR@20': '0.1444', 'NDCG@20': '0.0768'}
+

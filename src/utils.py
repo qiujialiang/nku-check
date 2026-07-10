@@ -98,15 +98,15 @@ def parse_args():
     if args.model_type.lower() == 'bsarec':
         parser.add_argument("--c", default=3, type=int)
         parser.add_argument("--alpha", default=0.9, type=float)
-        parser.add_argument("--ipcm", action="store_true")
-        parser.add_argument("--ipcm_lambda", default=0.02, type=float)
-        parser.add_argument("--ipcm_tau", default=0.2, type=float)
-        parser.add_argument("--ipcm_window_size", default=10, type=int)
-        parser.add_argument("--ipcm_neg_mode", default="in_batch", choices=["in_batch", "random", "sfns"])
-        parser.add_argument("--ipcm_sfns_candidates", default=20, type=int)
-        parser.add_argument("--ipcm_sfns_rho", default=0.95, type=float)
-        parser.add_argument("--ipcm_no_gate", action="store_true")
-        parser.add_argument("--ipcm_high_freq_only", action="store_true")
+        parser.add_argument("--fcm", action="store_true")
+        parser.add_argument("--fcm_lambda", default=0.02, type=float)
+        parser.add_argument("--fcm_tau", default=0.2, type=float)
+        parser.add_argument("--fcm_window_size", default=10, type=int)
+        parser.add_argument("--fcm_neg_mode", default="in_batch", choices=["in_batch", "random", "shn"])
+        parser.add_argument("--shn_candidates", default=20, type=int)
+        parser.add_argument("--shn_rho", default=0.95, type=float)
+        parser.add_argument("--fcm_no_gate", action="store_true")
+        parser.add_argument("--fcm_high_freq_only", action="store_true")
 
     elif args.model_type.lower() == 'bert4rec':
         parser.add_argument("--mask_ratio", default=0.2, type=float)
@@ -139,7 +139,7 @@ def parse_args():
 
     parsed_args = parser.parse_args()
     if parsed_args.model_type.lower() == 'bsarec':
-        parsed_args.ipcm_gate = not parsed_args.ipcm_no_gate
+        parsed_args.fcm_gate = not parsed_args.fcm_no_gate
     return parsed_args
 
 class EarlyStopping:

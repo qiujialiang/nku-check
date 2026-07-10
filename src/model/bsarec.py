@@ -35,8 +35,8 @@ class BSARecModel(SequentialRecModel):
         logits = torch.matmul(recommend_output, item_emb.transpose(0, 1))
         loss = nn.CrossEntropyLoss()(logits, answers)
 
-        if getattr(self.args, "ipcm", False):
-            loss = loss + self.args.ipcm_lambda * self.ipcm_loss(seq_output, input_ids, answers, neg_answers)
+        if getattr(self.args, "fcm", False):
+            loss = loss + self.args.fcm_lambda * self.fcm_loss(seq_output, input_ids, answers, neg_answers)
 
         return loss
 
@@ -49,7 +49,7 @@ class BSARecModel(SequentialRecModel):
         sequence_emb = self.LayerNorm(item_embeddings + position_embeddings)
         return sequence_emb
 
-    def ipcm_loss(self, seq_output, input_ids, answers, neg_answers):
+    def fcm_loss(self, seq_output, input_ids, answers, neg_answers):
         pos_ids = torch.cat([input_ids[:, 1:], answers.unsqueeze(1)], dim=1)
         hist_mask = (input_ids > 0).float().unsqueeze(-1)
         pos_mask = (pos_ids > 0).float().unsqueeze(-1)
@@ -58,7 +58,7 @@ class BSARecModel(SequentialRecModel):
         hist_target = self.get_continuation_embedding(input_ids).detach() * hist_mask
         pos_target = self.get_continuation_embedding(pos_ids).detach() * pos_mask
 
-        window_size = min(getattr(self.args, "ipcm_window_size", 0), pred.size(1))
+        window_size = min(getattr(self.args, "fcm_window_size", 0), pred.size(1))
         if window_size > 0:
             pred = pred[:, -window_size:, :]
             hist_target = hist_target[:, -window_size:, :]
@@ -68,7 +68,7 @@ class BSARecModel(SequentialRecModel):
         hist_freq = torch.fft.rfft(hist_target, dim=1, norm="ortho")
         pos_freq = torch.fft.rfft(pos_target, dim=1, norm="ortho")
 
-        if getattr(self.args, "ipcm_high_freq_only", False):
+        if getattr(self.args, "fcm_high_freq_only", False):
             cutoff = self.args.c // 2 + 1
             pred_freq = pred_freq[:, cutoff:, :]
             hist_freq = hist_freq[:, cutoff:, :]
@@ -83,25 +83,25 @@ class BSARecModel(SequentialRecModel):
         pos_vec = F.normalize(pos_vec, dim=-1)
         novelty = (1 - torch.sum(hist_vec * pos_vec, dim=-1)).clamp(min=0.0, max=2.0).detach()
 
-        neg_mode = getattr(self.args, "ipcm_neg_mode", "in_batch")
+        neg_mode = getattr(self.args, "fcm_neg_mode", "in_batch")
         if neg_mode == "random":
             neg_ids = torch.cat([input_ids[:, 1:], neg_answers.unsqueeze(1)], dim=1)
             neg_target = self.get_continuation_embedding(neg_ids).detach() * pos_mask
             if window_size > 0:
                 neg_target = neg_target[:, -window_size:, :]
             neg_freq = torch.fft.rfft(neg_target, dim=1, norm="ortho")
-            if getattr(self.args, "ipcm_high_freq_only", False):
+            if getattr(self.args, "fcm_high_freq_only", False):
                 neg_freq = neg_freq[:, cutoff:, :]
             neg_vec = torch.cat([neg_freq.real, neg_freq.imag], dim=-1).flatten(start_dim=1)
             neg_vec = F.normalize(neg_vec, dim=-1)
             pos_logits = torch.sum(pred_vec * pos_vec, dim=-1, keepdim=True)
             neg_logits = torch.sum(pred_vec * neg_vec, dim=-1, keepdim=True)
-            logits = torch.cat([pos_logits, neg_logits], dim=1) / self.args.ipcm_tau
+            logits = torch.cat([pos_logits, neg_logits], dim=1) / self.args.fcm_tau
             labels = torch.zeros(logits.size(0), dtype=torch.long, device=logits.device)
             loss = F.cross_entropy(logits, labels, reduction="none")
-        elif neg_mode == "sfns":
+        elif neg_mode == "shn":
             batch_size, seq_len = input_ids.size()
-            num_candidates = getattr(self.args, "ipcm_sfns_candidates", 20)
+            num_candidates = getattr(self.args, "shn_candidates", 20)
             candidates = torch.randint(
                 1,
                 self.args.item_size,
@@ -122,14 +122,14 @@ class BSARecModel(SequentialRecModel):
             if window_size > 0:
                 neg_target = neg_target[:, -window_size:, :]
             neg_freq = torch.fft.rfft(neg_target, dim=1, norm="ortho")
-            if getattr(self.args, "ipcm_high_freq_only", False):
+            if getattr(self.args, "fcm_high_freq_only", False):
                 neg_freq = neg_freq[:, cutoff:, :]
             neg_vec = torch.cat([neg_freq.real, neg_freq.imag], dim=-1).flatten(start_dim=1)
             neg_vec = F.normalize(neg_vec, dim=-1)
             neg_vec = neg_vec.view(batch_size, num_candidates, -1)
 
             candidate_sim = torch.sum(pos_vec.unsqueeze(1) * neg_vec, dim=-1)
-            false_negative_threshold = getattr(self.args, "ipcm_sfns_rho", 0.95)
+            false_negative_threshold = getattr(self.args, "shn_rho", 0.95)
             valid = candidate_sim < false_negative_threshold
             hard_scores = candidate_sim.masked_fill(~valid, -1e4)
             hard_idx = torch.argmax(hard_scores, dim=1)
@@ -140,15 +140,15 @@ class BSARecModel(SequentialRecModel):
 
             pos_logits = torch.sum(pred_vec * pos_vec, dim=-1, keepdim=True)
             neg_logits = torch.sum(pred_vec * selected_neg_vec, dim=-1, keepdim=True)
-            logits = torch.cat([pos_logits, neg_logits], dim=1) / self.args.ipcm_tau
+            logits = torch.cat([pos_logits, neg_logits], dim=1) / self.args.fcm_tau
             labels = torch.zeros(logits.size(0), dtype=torch.long, device=logits.device)
             loss = F.cross_entropy(logits, labels, reduction="none")
         else:
-            logits = torch.matmul(pred_vec, pos_vec.transpose(0, 1)) / self.args.ipcm_tau
+            logits = torch.matmul(pred_vec, pos_vec.transpose(0, 1)) / self.args.fcm_tau
             labels = torch.arange(logits.size(0), dtype=torch.long, device=logits.device)
             loss = F.cross_entropy(logits, labels, reduction="none")
 
-        if getattr(self.args, "ipcm_gate", True):
+        if getattr(self.args, "fcm_gate", True):
             loss = loss * novelty
 
         return loss.mean()
